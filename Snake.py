@@ -124,6 +124,7 @@ def growSnake():
     facing = lastPart.getFacing()  
     newPart.position = getPositon(facing, lastPart.position)
     newPart.setFacing(facing)
+    newPart.setVelocity(head.getVelocity())
     newPart.draw()
     snakeParts.append(newPart)
 
@@ -168,14 +169,8 @@ def processInput():
         wasGpressed = False
         
 def updateSnake():
-    head.applyVelocity()
-    head.draw()
-    
-    for i in range(len(snakeParts) - 1, 0, -1):
-        part = snakeParts[i]
-        prevPart = snakeParts[i - 1]
-        
-        part.position = list(prevPart.position)
+    for part in snakeParts:
+        part.applyVelocity()
         part.draw()
 
         
