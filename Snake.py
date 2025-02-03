@@ -37,11 +37,7 @@ class GameObject:
     facing = [1, 0]
     velocity = 0
     label : Label
-    tracing = False
-    traceAxis = 0
-    traceGoal = 0
-    traceProgress = 0
-    target = None
+    prevPosition = list(position)
     
     def __init__(self, label : Label):
         self.label = label
@@ -49,12 +45,11 @@ class GameObject:
     def applyVelocity(self):
         facing = self.facing
         facingX = facing[0]
+        self.prevPosition = list(self.position)
         if facingX != 0:
             self.position[0] += (self.velocity * facingX)
         else:
             self.position[1] += (self.velocity * facing[1])
-        if self.tracing:
-            self.traceProgress += self.velocity
     
     def draw(self):
         self.label.place(x=self.position[0], y=self.position[1], anchor=CENTER)
@@ -127,36 +122,20 @@ def growSnake():
     newPart.setVelocity(head.getVelocity())
     newPart.draw()
     snakeParts.append(newPart)
-
-def startTraceChain(facing):
-    size = len(snakeParts)
-    if size == 1: return
-    size -= 1
-    part = snakeParts[size]
-    part.traceGoal = SNAKE_SIZE
-    if facing == "F" or facing == "B":
-        part.traceAxis = 0
-    elif facing == "R" or facing == "L":
-        part.traceAxis = 1
-    part.tracing = True
     
 def processInput():        
     global wasGpressed
     
     if keyboard.is_pressed(KEYBIND_FORWARD) and head.getFacing() != "F":
-        startTraceChain(head.facing)
         head.setFacing("F")
         dLog("FORWARD")
     elif keyboard.is_pressed(KEYBIND_BACKWARD) and head.getFacing() != "B":
-        startTraceChain(head.facing)
         head.setFacing("B")
         dLog("BACKWARD")
     elif keyboard.is_pressed(KEYBIND_LEFT) and head.getFacing() != "L":
-        startTraceChain(head.facing)
         head.setFacing("L")
         dLog("LEFT")
     elif keyboard.is_pressed(KEYBIND_RIGHT) and head.getFacing() != "R":
-        startTraceChain(head.facing)
         head.setFacing("R")
         dLog("RIGHT")
         
@@ -169,11 +148,19 @@ def processInput():
         wasGpressed = False
         
 def updateSnake():
-    for part in snakeParts:
-        part.applyVelocity()
+    head.applyVelocity()
+    print("Previous Pos:")
+    print(head.prevPosition)
+    print("Current Pos")
+    print(head.position)
+    print("==================")
+    for i in range(1, len(snakeParts)):
+        part = snakeParts[i]
+        prevPart = snakeParts[i - 1]
+        pos = prevPart.position
         part.draw()
-
-        
+    head.draw()
+    
 while window.winfo_exists:
     try:
        processInput()
